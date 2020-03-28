@@ -1,0 +1,50 @@
+{
+  "name": "app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "axios": "^0.19.2",
+    "http-proxy-middleware": "^1.0.3",
+    "jquery": "^3.4.1",
+    "moment": "^2.24.0",
+    "node-sass": "^4.13.1",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "react-markdown": "^3.3.4",
+    "react-redux": "^5.0.7",
+    "react-router": "^4.2.0",
+    "react-router-config": "^1.0.0-beta.4",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "3.4.1",
+    "react-select": "^2.0.0",
+    "recharts": "^1.2.0",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
+    "rewire": "^5.0.0"
+  },
+  "scripts": {
+    "start": "PORT=5052 react-scripts start",
+    "build": "react-scripts build",
+    "build2": "./scripts/build-non-split.js",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

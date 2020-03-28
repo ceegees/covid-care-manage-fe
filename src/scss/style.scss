@@ -1,0 +1,184 @@
+
+.app-top-alert{
+    position: fixed;
+    width: 100%;
+    z-index: 10000;  
+    text-align: center;
+    top:0px;
+    left:0px;
+    letter-spacing: 1px;
+    font-weight: bold;
+    padding:8px 28px;
+    h5 {
+        font-size:14px;
+    }
+}
+
+body { 
+    background-repeat: no-repeat;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance:textfield;
+}
+
+@media screen and (max-width: 640px) and (min-width: 0px) {
+        
+    .kf-image-banner{
+        background-size: contain; 
+        background-repeat: no-repeat;
+        min-height: 620px;
+        background-position: bottom;
+    }
+    .kf-image-banner.kf-semi-white{
+        background-color: transparent;
+    }
+}
+
+
+@media screen  and (min-width: 541px) {
+        
+    body { 
+        background-size: contain; 
+        background-position: bottom; 
+        background-repeat: no-repeat;
+    }
+}
+
+.kf-show {
+    visibility: visible;
+}
+
+.kf-hide {
+    visibility: hidden;
+}
+.kf-semi-white{
+    background-color:rgba(255,255,255,0.9);
+}
+
+body.loggedIn{
+    background:rgba(56, 72, 103, 1);
+    background-image: none;
+    .footer {
+        background:white;
+    }
+}
+.kf-top-bar{
+   border-bottom:solid 6px #EDEDED
+}
+ 
+
+.kf-top-bar-filter .kf-carot {
+    width: 8px;
+    height: 8px;
+    border: 2px solid;
+    display: inline-block;
+    transform: rotate(45deg);
+    border-left: 0px;
+    border-top: 0px;
+    position: relative;
+    top: -3px;
+}
+
+// .header-top-bar{
+//     .w3-bar-item {
+//         //  margin:0px 2px;
+//     }
+// }
+
+.google-maps-supply {
+    position: relative;
+    padding-bottom: 75%; // This is the aspect ratio
+    height: 0;
+    overflow: hidden;
+}
+.kf-form-input-select {
+    height:34px;
+}
+
+.small-form {
+    .w3-modal-content{
+        max-width: 500px;
+    }
+}
+.kf-input-padding{
+    label {
+        margin-bottom:4px;
+        display:block;
+    }
+}
+.kf-request-item{
+    .w3-button {
+        margin:4px;
+    }
+}
+.w3-table tr td {
+    word-wrap: break-word;
+}
+.google-maps-supply iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+}
+.kf-top-bar-filter .w3-dropdown-content {
+    position: fixed;
+}
+
+.kf-capitalize{
+    text-transform: capitalize;
+}
+
+.w3-modal{
+    padding-top:20px;
+}
+.w3-button.active, .w3-button:hover{
+    background:#000 !important;
+    color:white!important;
+}
+
+
+.cgs-loader {
+    border: 6px solid #f3f3f3; /* Light grey */
+    border-top: 6px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: auto;
+    margin-top:10px;
+}
+
+.cgs-loader-small {
+    .cgs-loader {
+        border: 2px solid #f3f3f3; /* Light grey */
+        border-top: 2px solid #3498db; /* Blue */
+        border-radius: 50%;
+        width: 10px;
+        height: 10px;
+    }
+}
+.rescue-table{
+    tr td {
+        vertical-align: top;
+    }
+}
+.kf-request-item{
+    word-wrap: break-word;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.kf-manage-container {
+    min-height: 100vh;
+    padding-bottom: 100px;
+}
