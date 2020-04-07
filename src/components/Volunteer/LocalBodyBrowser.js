@@ -1,284 +1,275 @@
 
-import  React,{ Component } from 'react'; 
-import axios from 'axios'; 
-import {Spinner,EmptyTRMessage,Message} from '../Common/Helper';
-import {withRouter,Route,Link,NavLink} from 'react-router-dom';
-import { connect } from 'react-redux'; 
+/*eslint no-restricted-globals: off*/
+import React, { Component } from 'react';
+import axios from 'axios';
+import { Spinner, EmptyTRMessage, Message } from '../Common/Helper';
+import { withRouter, Redirect, Link, NavLink } from 'react-router-dom';
+import { connect } from 'react-redux';
+import get from 'lodash.get';
 
 import { metaMessage } from '../../redux/actions';
 import AddUser from './../Modals/AddUser';
 import AssignToOfficer from '../Modals/AssignToOfficer';
 import VolunteerTaskList from './VolunteerTaskList';
+import Requests from "../Requests";
 import VolunteerList from './VolunteerList';
-import OfficerList  from './OfficerList';
-import {BarChart, Bar, XAxis,ResponsiveContainer, YAxis, CartesianGrid, Tooltip, Legend} from 'recharts';
+import OfficerList from './OfficerList';
+import LBStats from '../Dashboard/LBStats';
 
-function hasVolunteers(item){
-    return item && ( item.category == 'Muncipality' || 
+function hasVolunteers(item) {
+    return item && (item.category == 'Muncipality' ||
         item.category == 'Panchayath' ||
         item.category == 'Corporation');
 }
 
-class LBVisualization extends Component {
-    render(){
-        const {list} = this.props;
-        const data = list.map(item => {
-            return {
-                name:item.name ,
-                pending : item.json ? item.json.totalRequestSize - item.json.totalServicedSize : 0,
-                completed:item.json ? item.json.totalServicedSize :0
-            }
-        });
-        return  <div className="w3-center" style={{height:"240px",marginBottom:"40px"}}>
-            <b>Activity Status</b>
-            <ResponsiveContainer className="w3-section"  width="100%" >
-            <BarChart data={data} >
-                <CartesianGrid strokeDasharray="3 3"/>
-                <XAxis dataKey="name" />
-                <YAxis/>
-                <Bar dataKey="pending" stackId="a" fill="#8884d8" />
-                <Bar dataKey="completed" stackId="a" fill="#82ca9d" />
-                <Tooltip  cursor={{ stroke: 'rgba(0,0,0,0.1)',fill:'rgba(0,0,0,0.2)', strokeWidth: 2 }} />
-                <Legend /> 
-            </BarChart>
-            </ResponsiveContainer>
-      </div>
-    }
-}
+class LocalBodyBrowser extends Component {
 
-class LocalBodyBrowser extends Component{
-
-    constructor(arg){
+    constructor(arg) {
         super(arg);
         this.state = {
-            data:{},
-            version:new Date().getTime(),
-            modal:null
+            data: {},
+            version: new Date().getTime(),
+            modal: null
         }
     }
-    
-    hideModal(message){
-        this.setState({modal:null});
-        if (message =='reload'){
+
+    hideModal(message) {
+        this.setState({ modal: null });
+        if (message == 'reload') {
             this.loadData();
-        } else if (message == 'reload_volunteers'){
+        } else if (message == 'reload_volunteers') {
             this.setState({
-                version:new Date().getTime()
+                version: new Date().getTime()
             });
         }
     }
 
-    assignToOfficer(user){
+    assignToOfficer(user) {
         this.setState({
-            modal:<AssignToOfficer id={this.props.match.params.parentId} 
-            metaMessage={this.props.metaMessage}
-            hideModal={this.hideModal.bind(this) } 
-            user={user}/>
+            modal: <AssignToOfficer id={this.props.match.params.parentId}
+                metaMessage={this.props.metaMessage}
+                hideModal={this.hideModal.bind(this)}
+                user={user} />
         })
     }
 
-    loadData(){
-        const {parentId=0} = this.props.match.params;
-        axios.get(`/api/v1/manage/lb?lbid=${parentId}`).then(resp=>{
-            if(!resp.data.meta.success){
+    loadData() {
+        const { parentId = 0 } = this.props.match.params;
+        axios.get(`/api/v1/manage/lb?lbid=${parentId}`).then(resp => {
+            if (!resp.data.meta.success) {
                 // this.props.metaMessage(resp.data.meta);
-                this.props.history.push("/lb");
+                // this.props.history.push("/lb");
             } else {
-                resp =resp.data;  
+                resp = resp.data;
                 this.setState({
-                    data:resp.data
+                    data: resp.data
                 });
             }
         })
     }
 
-    componentDidMount(){
-       this.loadData();
+    componentDidMount() {
+        this.loadData();
     }
-
-    componentDidUpdate(prevProps,prevState){  
-        if(prevProps.match.params.parentId != this.props.match.params.parentId){
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.match.params.parentId != this.props.match.params.parentId) {
             this.loadData();
-            if (window){
-                window.scrollTo(0,0)
+            if (window) {
+                window.scrollTo(0, 0)
             }
         }
     }
 
-    showModal(body){
-        this.setState({modal:<AddUser 
-            hideModal={this.hideModal.bind(this)} 
-            body={body} {...this.props}/>})
+    showModal(body) {
+        this.setState({
+            modal: <AddUser
+                hideModal={this.hideModal.bind(this)}
+                body={body} {...this.props} />
+        })
     }
-    
-    removeRole(item){ 
-        const result = false;//confirm('Do you really want to remove ');
-        if(result){
-            axios.post('/api/v1/manage/remove-role',{id:item.id}).then(resp=>{
+
+    removeRole(item) {
+        const result = confirm('Do you really want to remove ');
+        if (result) {
+            axios.post('/api/v1/manage/remove-role', { id: item.id }).then(resp => {
                 this.props.metaMessage(resp.data.meta);
-                if(resp.data.meta.success){
+                if (resp.data.meta.success) {
                     this.loadData();
                 }
             });
         }
     }
 
-    renderManagers(){
-        const {officers,body} = this.state.data;
-        const {authUser} = this.props;
+    renderManagers() {
+        const { officers } = this.state.data;
+        const { authUser } = this.props;
         return <div className="w3-responsive w3-section ">
             <table className=" w3-table w3-table-all">
                 <thead>
                     <tr>
-                        <th> {body.category != 'Ward' ? 'Officer':'Officer'}</th>
+                        <th>Officer</th>
                         <th>Phone</th>
                         <th>Role</th>
                         <th className="w3-right-align">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                {officers.map(item => <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.phoneNumber}</td>
-                    <td>{item.userRole.role}</td> 
-                    <td>
-                        {authUser.role != 'OFFICER' &&    <button className="w3-red w3-right w3-button w3-round w3-padding-small w3-small" onClick={this.removeRole.bind(this,item.userRole)}>X</button>
-                        }
-                    </td>
+                    {officers.map(item => <tr key={item.id}>
+                        <td>{item.name}</td>
+                        <td>{item.phoneNumber}</td>
+                        <td>{item.userRole.role}</td>
+                        <td>
+                            {authUser.role != 'OFFICER' &&
+                                <button className="w3-red w3-right w3-button w3-round w3-padding-small w3-small"
+                                    onClick={this.removeRole.bind(this, item.userRole)}>X</button>
+                            }
+                        </td>
                     </tr>)
-                }
-                {officers.length == 0 && <EmptyTRMessage colSpan="4">No Secretery Or Officers are added
+                    }
+                    {officers.length == 0 && <EmptyTRMessage colSpan="4">No Secretery Or Officers are added
                 </EmptyTRMessage>}
                 </tbody>
             </table>
         </div>
     }
 
-    renderLocalBody(){
+    renderLocalBody() {
 
-        const {children,body} = this.state.data;
-        const {authUser} = this.props;
+        const { children, body } = this.state.data;
+        const { authUser, match: { params: { type = 'travel_pass' } } } = this.props; 
+
         return <div className="w3-responsive w3-section">
-        <table className="w3-table w3-table-all ">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Volunteers / LO</th>
-                    <th>In-Charge</th>
-                    <th className="w3-right-align">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {children.map((item,idx) => { 
-                let option = null;
-                if(authUser.role == 'OFFICER'){
-                    option = null;
-                } else  if (item.category == 'Ward'){
-                    option = <button onClick={this.showModal.bind(this,item)} className="w3-button w3-green w3-small w3-round w3-padding-small w3-right">Add Officer</button>
-                } else  if (item.category == 'District'){
-                    option = <button onClick={this.showModal.bind(this,item)} className="w3-button w3-green w3-small w3-round w3-padding-small w3-right">Add District Level Officer</button>
-                } else if (authUser.role != 'VOLUNTEER'){
-                    option = <button onClick={this.showModal.bind(this,item)} className="w3-button w3-teal w3-small w3-round w3-padding-small w3-right">Add Officer</button>
-                }
-                return <tr key={idx}>
-                <td>{idx+1}</td>
-                <td>
-                    <NavLink to={`/lb/${item.category}/${item.id}`}>{item.name}  </NavLink>
-                    <span className="w3-margin-left w3-small w3-text-grey w3-right">{item.category}</span>
-                    <div className="w3-small w3-text-grey" >
-                    Total Requests :{item.json? item.json.totalTaskCount:0}<br/>
-                    Pending Requests :{item.json? item.json.totalRequestSize:0}<br/>
-                    Requests Completed :{item.json? item.json.totalServicedSize:0}<br/></div>
-                </td>
-                <td className="w3-small ">
-                    <div className="w3-hide">
-                    {( item.category != 'Ward' ) ? 
-                        <div>{`Volunteers Preference: ${item.volunteerCount}` }
-                            <br/><a target="_blank" href={`/api/v1/manage/export-csv?code=${item.code}&dist=${item.district}`}>Download List</a></div>
-                        : null 
-                    }
-                    Officers:{item.officerCount}
-                    </div>    
-                </td>
-
-                <td><ol className="w3-ol w3-small">{item.userRoles.map(item=>{
-                    return <li key={item.user.id}>{item.user.name}
-                        <span style={{textTransform:'capitalize'}} 
-                            className="w3-margin-left w3-text-grey w3-tiny w3-right">({item.role.toLowerCase()})       
-                        </span>
-                     </li>
+            <table className="w3-table w3-table-all ">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>In-Charge</th>
+                        <th className="w3-right-align">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {children.map((item, idx) => {
+                        let option = null;
+                        if (authUser.role == 'OFFICER') {
+                            option = null;
+                        } else if (item.category == 'Ward') {
+                            option = <button onClick={this.showModal.bind(this, item)} className="w3-button w3-green w3-small w3-round w3-padding-small w3-right">Add Officer</button>
+                        } else if (item.category == 'District') {
+                            option = <button onClick={this.showModal.bind(this, item)} className="w3-button w3-green w3-small w3-round w3-padding-small w3-right">Add District Level Officer</button>
+                        } else if (authUser.role != 'VOLUNTEER') {
+                            option = <button onClick={this.showModal.bind(this, item)} className="w3-button w3-teal w3-small w3-round w3-padding-small w3-right">Add Officer</button>
+                        }
+                        return <tr key={idx}>
+                            <td>{idx + 1}</td>
+                            <td>
+                                <NavLink className="special-link" to={`/lb/${item.uniqueId}/browse`}>{item.name}  </NavLink>
+                                <span className="w3-margin-left w3-small w3-text-grey">{item.category}</span>
+                                <div className="w3-small w3-text-grey" >
+                                    Total  :{item.json ? item.json.totalTaskCount : 0}<br />
+                                    Pending :{item.json ? (item.json.totalRequestSize - item.json.totalServicedSize) : 0}<br />
+                                    Completed :{item.json ? item.json.totalServicedSize : 0}<br /></div>
+                            </td>
+                            <td>
+                                <ol className="w3-ol w3-small">{item.userRoles.map(item => {
+                                    return <li key={item.user.id}>{item.user.name}
+                                        <span style={{ textTransform: 'capitalize' }}
+                                            className="w3-margin-left w3-text-grey w3-tiny">({item.role.toLowerCase()})
+                                        </span>
+                                    </li>
+                                })}
+                                </ol>
+                                <div className="w3-hide">
+                                    {(item.category != 'Ward') ?
+                                        <div>{`Volunteers Preference: ${item.volunteerCount}`}
+                                            <br /><a target="_blank"
+                                                href={`/api/v1/manage/export-csv?code=${item.code}&dist=${item.district}`}>Download List</a>
+                                        </div>
+                                        : null
+                                    }
+                                    Officers:{item.officerCount}
+                                </div>
+                            </td>
+                            <td>
+                                {option}
+                            </td>
+                        </tr>
                     })}
-                    </ol>
-                </td>
-                <td>
-                    {option}
-                </td>
-            </tr>})}
-            {children.length == 0 && 
-                <tr>
-                    <td colSpan="6" className="w3-center w3-text-grey">
-                        No Local Bodies are present under
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+                    {children.length == 0 &&
+                        <tr>
+                            <td colSpan="6" className="w3-center w3-text-grey">
+                                No Local Bodies are present under</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
 
-    render (){
-        const {body,children,tasks} = this.state.data;  
-        const {type,parentId,tab} = this.props.match.params;
+    render() {
+        const { body, children, tasks } = this.state.data;
+        const { type = 'browse', status="pending", parentId, tab } = this.props.match.params;
         let content = null;
-        if(!children){
-            content = <Spinner/>
-        } else if (type == 'Ward' && body){
-            content = <VolunteerTaskList url={`/api/v1/task/assigned?lbid=${parentId}`}  />
+        if (!children) {
+            content = <Spinner />
+        } else if(!parentId || parentId == ''){
+            return <Redirect to={`/lb/IN@CTRY_32@ST`} />
+        } else if ( children.length == 0 ||  type == 'travel_pass') {
+            content = <Requests match={this.props.match} base={`/lb/${parentId}/travel_pass`} />
+            // content = <VolunteerTaskList type={type} url={`/api/v1/task/assigned?lbid=${body.id}`} />
         } else if (tab == 'volunteers') {
-            content = <VolunteerList 
-                localBody={body} 
-                version={this.state.version}  
-                assignToOfficer={this.assignToOfficer.bind(this)} />
+            content = <VolunteerList localBody={body} type={type}
+                version={this.state.version} assignToOfficer={this.assignToOfficer.bind(this)} />
         } else if (tab == 'officers') {
-            content =  <OfficerList  
-                localBody={body} version={this.state.version}  />
+            content = <OfficerList localBody={body} version={this.state.version} />
         } else {
             content = this.renderLocalBody();
-        }
+        } 
+
         return <div className="w3-row-padding">
-                <div className="w3-bar">
-                {body && (body.parent ?  <Link className="w3-bar-item w3-padding"  to={`/lb/${body.parent.category}/${body.parent.id}`}>Back </Link>  : <Link className="w3-bar-item" to="/lb">Back</Link>) } 
-                <h3 className="w3-center"> {body ? `${body.name} ${body.category} ` :'Kerala State'}</h3>
-                </div>
-                {body && this.renderManagers()}
+            <div className="w3-bar">
+                {body && (body.parent ? <Link className="w3-bar-item w3-padding"
+                    to={`/lb/${body.parent.uniqueId}/${type}`}>Back </Link> : <Link className="w3-bar-item" to="/lb">Back</Link>)}
+                <h3 className="w3-center"> {body ? `${body.name} ${body.category} ` : 'India'}</h3>
+            </div>
+            
+            {body && this.renderManagers()}
 
-                {children && children.length > 0 &&  
-                    <LBVisualization list={children} />
-                }
-                { hasVolunteers(body) && <div className=" w3-bar w3-section w3-light-grey">
-                        <NavLink to={`/lb/${type}/${parentId}/`} 
-                            exact activeClassName="w3-blue" className="w3-bar-item w3-button">Wards</NavLink>
-                        <NavLink to={`/lb/${type}/${parentId}/volunteers`}  
-                            activeClassName="w3-blue"  className="w3-bar-item w3-button">Volunteers</NavLink>  
+            {children && children.length > 0 &&
+                <LBStats list={children} />
+            }
+            {hasVolunteers(body) && <div className=" w3-bar w3-padding w3-section w3-light-grey" 
+            >
+                <NavLink to={`/lb/${parentId}/${type}/`}
+                    exact activeClassName="w3-blue" className="w3-bar-item w3-button">Wards</NavLink>
+                <NavLink to={`/lb/${parentId}/${type}/volunteers`}
+                    activeClassName="w3-blue" className="w3-bar-item w3-button">Volunteers</NavLink>
 
-                        <NavLink to={`/lb/${type}/${parentId}/officers`}  
-                            activeClassName="w3-blue"  className="w3-bar-item w3-button">Officers</NavLink>  
-                    </div>
-                }
-                {content}
-                {this.state.modal} 
-            </div> 
+                <NavLink to={`/lb/${parentId}/${type}/officers`}
+                    activeClassName="w3-blue" className="w3-bar-item w3-button">Officers</NavLink>
+            </div>
+            }
+
+           {(children && children.length > 0 )&&  <div className=" w3-bar w3-section w3-light-grey" style={{padding:"10px 10px 0px 10px"}}>
+                <NavLink to={`/lb/${parentId}/browse/`}
+                    exact activeClassName="w3-white" className="w3-bar-item w3-button tab-headers">Browse</NavLink>
+                <NavLink to={`/lb/${parentId}/travel_pass/`}
+                    activeClassName="w3-white" className="w3-bar-item w3-button tab-headers">Travel Pass</NavLink>
+
+            </div>}
+            {content}
+            {this.state.modal}
+        </div>
     }
 
 }
 
-const mapStateToProps = (state) =>{
+const mapStateToProps = (state) => {
     return {
-        authUser:state.authUser
+        authUser: state.authUser
     }
 }
 
-export default connect(mapStateToProps, { 
-    metaMessage, 
-})(withRouter(LocalBodyBrowser));
+export default withRouter(connect(mapStateToProps, {
+    metaMessage,
+})(LocalBodyBrowser));

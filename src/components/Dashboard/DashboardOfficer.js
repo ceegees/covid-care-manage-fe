@@ -2,13 +2,10 @@ import  React,{ Component } from 'react';
 import { connect } from 'react-redux'; 
 import { metaMessage } from '../../redux/actions.js';      
 import axios from 'axios'; 
-import AddRequest from '../Modals/AddRequest.js';
-import Settings from './Settings.js';
-import VolunteerTaskList from './VolunteerTaskList.js';
+import AddRequest from '../Modals/AddRequest.js'; 
+import VolunteerTaskList from '../Volunteer/VolunteerTaskList.js';
 
-
-import {withRouter,Route,Switch,NavLink} from 'react-router-dom';
-import LocalBodyBrowser from './LocalBodyBrowser.js';
+import {withRouter,Route,Switch,NavLink} from 'react-router-dom'; 
 
 class TaskManagerList extends Component {
 
@@ -113,13 +110,9 @@ class TaskManagerList extends Component {
 } 
 
 class DashboardOfficer extends Component {
-    
-
     render(){
         const {authUser,metaMessage} = this.props; 
         return <Switch> 
-            <Route exact path="/lb/:type?/:parentId?/:tab?" component={LocalBodyBrowser}/> 
-            <Route exact path="/settings" component={Settings}/> 
             <Route exact path="/created" render={params => { 
                 return  <div className="w3-padding-small">
                     <h3>Tasks you created</h3>

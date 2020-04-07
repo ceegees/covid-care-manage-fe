@@ -42,7 +42,7 @@ export default class AssignToOfficer extends Component {
                 this.props.hideModal('reload_volunteers');
             }
         }).catch(ex => {
-            console.log(ex);
+            console.error(ex);
         })
     }
     submitData(e){

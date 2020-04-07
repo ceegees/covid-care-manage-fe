@@ -4,7 +4,7 @@ import Reveal from '../Common/Reveal';
 import Select from 'react-select'
 import axios from 'axios';
 import { getLocalBodyOptions ,getBodyName} from '../../redux/actions'; 
-
+import get from 'lodash.get';
 export default class EditUser extends Component {
 
     constructor(arg){
@@ -58,7 +58,7 @@ export default class EditUser extends Component {
                     value:user.district,
                     label:user.district
                 },
-                dayPreference: user.json.dayPreference,
+                dayPreference: get(user,'json.dayPreference')
             },
             errors:{},
            

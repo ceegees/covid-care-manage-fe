@@ -1,17 +1,14 @@
 import axios from 'axios';
 
  
-axios.interceptors.request.use(function (config) {
-    // Do something before request is sent
-    config.headers['content-type'] = 'application/json';
+axios.interceptors.request.use(function (config) { 
     config.headers['X-Requested-With'] = 'XMLHttpRequest'; 
     let token = localStorage.getItem('accessToken');
     if(token) {
         config.headers['Authorization'] = `Bearer ${token}`
     }
     return config;
-  }, function (error) {
-    // Do something with request error
+  }, function (error) { 
     return Promise.reject(error);
   });
  
@@ -94,7 +91,8 @@ export const showMessage = (type, text, stay = 0) => {
         type: "MESSAGE_STATUS",
         key: 'appMessage',
         value: {
-            stay: stay,
+            stay,
+            at:new Date().getTime(),
             cls: type === 'success' ? 'w3-green' : 'w3-red',
             text,
         },

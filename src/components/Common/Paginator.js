@@ -1,28 +1,28 @@
-import  React,{ Component } from 'react'; 
-import {NavLink} from 'react-router-dom';
+import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
 
-const Paginator = ({page,base,data}) => {
-    page = page - 10;
+const Paginator = ({ base, total,page, perPage = 10,pageCount = 10 }) => {
     const pages = [];
-    if(page < 1){
-        page = 1;
-    }
-    const lastPage = data.page_max;
-    for(var idx = page;idx < page + 18 && idx < lastPage;idx++){
+    const lastPage = Math.ceil(total / perPage);
+    const start = Math.max(page - Math.floor(pageCount/2),1); 
+    for (let idx = start ; idx < start + pageCount && idx < lastPage+1; idx++) {
         pages.push(idx);
-    }
+    } 
 
-    if (data.total < data.per_page){
+    // console.log(pages,perPage,total,lastPage);
+    if (total < perPage) {
         return <div></div>
     }
 
-    return <div className="w3-bar">
-        <NavLink to={`${base}/1`} className="w3-button">&laquo;</NavLink> 
-        {
-            pages.map( page=> <NavLink key={`page_${page}`} to={`${base}/${page}`} 
-                className="w3-button">{page}</NavLink> )
-        }
-        <NavLink to={`${base}/${lastPage}`} className="w3-button">&raquo;</NavLink>
+    return <div className="w3-center w3-padding">
+        <div className="w3-bar ">
+            { page > 10 && <NavLink to={`${base}/1`} className="w3-button">&laquo;</NavLink> }
+            {pages.map(pg => <NavLink 
+                key={`page_${pg}`} to={`${base}/${pg}`}
+                className="w3-button">{pg}</NavLink>)
+            }
+            {lastPage - 10 > page && <NavLink to={`${base}/${lastPage}`} className="w3-button">&raquo;</NavLink>}
+        </div>
     </div>
 }
 

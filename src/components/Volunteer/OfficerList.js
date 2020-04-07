@@ -11,7 +11,7 @@ export default class OfficerList extends Component{
     }
     
     reloadData(){
-        axios.get(`/api/v1/manage/lsgi-officers?lbid=${this.props.localBody.id}`).then(resp=>{
+        axios.get(`/api/v1/manage/lb-officers?lbid=${this.props.localBody.id}`).then(resp=>{
             this.setState({
                 list:resp.data.data
             });

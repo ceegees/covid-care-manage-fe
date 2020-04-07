@@ -170,7 +170,7 @@ class Register extends Component{
                 // document.location.reload();
             }  
         }).catch(ex=>{
-            console.log(ex);
+            console.error(ex);
         });
 
     }

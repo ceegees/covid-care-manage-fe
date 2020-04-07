@@ -1,6 +1,5 @@
 
-import moment from 'moment';  
-import qs from 'querystring';
+import moment from 'moment';   
   
 export function roundUpHour(secs){
     return secs + (3600 - secs %3600);

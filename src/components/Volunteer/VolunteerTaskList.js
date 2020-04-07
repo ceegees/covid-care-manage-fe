@@ -1,12 +1,15 @@
 import  React,{ Component } from 'react'; 
 import axios from 'axios';
 import moment from 'moment';
+import {Redirect} from 'react-router-dom';
 import { connect } from 'react-redux'; 
 import { Spinner } from '../Common/Helper';   
 import WorkLog from './../Modals/WorkLog';  
 import AddWorkLog from './../Modals/AddWorkLog';
 import AddRequest from './../Modals/AddRequest';
 import { metaMessage , getBodyName} from './../../redux/actions.js';   
+import RequestCard from '../Requests/Card';
+
 
 class VolunteerTaskList extends Component {
 
@@ -18,7 +21,10 @@ class VolunteerTaskList extends Component {
         }
     }
 
-    loadTasks(){ 
+    loadData(actionResp){
+        if(actionResp){
+            this.props.metaMessage(actionResp.data.meta);
+        } 
         axios.get(this.props.url).then(resp=>{
             resp = resp.data;
             if (!resp.meta.success){
@@ -32,7 +38,7 @@ class VolunteerTaskList extends Component {
     }
 
     componentDidMount(){
-        this.loadTasks();
+        this.loadData();
     }
 
     componentWillReceiveProps(nextProps){
@@ -40,15 +46,20 @@ class VolunteerTaskList extends Component {
             return;
         }
         if (this.props.user.updatedAt != nextProps.user.updatedAt){
-            this.loadTasks();
+            this.loadData();
             return;
+        }
+    }
+    componentDidUpdate(prevProps){
+        if (prevProps.url != this.props.url){
+            this.loadData();
         }
     }
 
     hideModal(message){ 
         this.setState({modal:null});
         if(message =='reload'){
-            this.loadTasks();
+            this.loadData();
         }
     }
 
@@ -88,19 +99,7 @@ class VolunteerTaskList extends Component {
         } else if (taskList.length == 0 && this.props.user){
             tblCls = 'w3-hide';
             if (this.props.authUser.id == this.props.user.id){
-                uiMessage = <div className="w3-panel w3-light-grey w3-padding">
-                    <div>
-                On behalf of Government of Kerala we thank you for coming forward to volunteer for flood damage assessment. <br/> <br/>
-                You will be invited by the Secretary of LSGI preferred by you during registration. You can use your same username (mobile number) and password of this portal to login into the mobile app “Rebuild Kerala” that will be used for the survey. <br/> <br/>
-                <div className="w3-hide">
-                    
-                    <b>You can login successfully only after you report at the LSGI and task is assigned by the Liaison officer</b>. <br/><br/>Volunteers should have a good working camera and Mobile Data.
-                    <br/><br/>You are requested to keep mobile app downloaded and installed on your mobile phone. The link for mobile app is <a  href="https://play.google.com/store/apps/details?id=in.gov.ikm.disasterreliefsupport">https://play.google.com/store/apps/details?id=in.gov.ikm.disasterreliefsupport</a>
-                </div>
-                
-                    </div>
-                    <div className="w3-right-align">Government of Kerala </div>
-                </div>
+                uiMessage =  <Redirect to="/dashboard"/>
             uiTaskList = null
 
             } else {
@@ -110,6 +109,10 @@ class VolunteerTaskList extends Component {
             uiTaskList = <div className="w3-padding">The task list is empty</div>
         } else {
             uiTaskList = taskList.map(item =>{
+
+                if (item.type == 'travel_pass') {
+                    return <RequestCard item={item} loadData={this.loadData.bind(this)} />
+                }
                 let information = item.information;
                  
                 let color = 'w3-amber';
@@ -124,7 +127,6 @@ class VolunteerTaskList extends Component {
                     color = 'w3-teal'
                     border = 'w3-border-green';
                 }
-
                 return <div className={`w3-leftbar w3-white ${border} w3-row w3-display-container `} 
                     key={item.id} >
                     <div className="w3-border-top w3-border-bottom w3-col l12 s12 w3-padding-small"><b className="w3-small">#{item.id} - {getBodyName(item.locationCode).name},  Ward : {item.group.split("-").pop()}, 
@@ -133,7 +135,7 @@ class VolunteerTaskList extends Component {
                      </div>
                     <div className={`w3-col l9 s12 w3-padding-small`}>
                         <div>{information}</div>   
-                        <span className="w3-small w3-text-grey "> By  {item.creator.name} , {moment(item.createdAt).fromNow()}</span> 
+                        <span className="w3-small w3-text-grey "> By {item.creator.name} , {moment(item.createdAt).fromNow()}</span> 
                         <br/>
                         <a href="#" className="w3-block w3-section" onClick={this.showWorkLog.bind(this,item)}>View Worklog</a>
                     </div>

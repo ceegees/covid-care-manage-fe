@@ -1,10 +1,15 @@
 import React from 'react';
-import { withRouter, Route, Switch } from 'react-router-dom'
+import { withRouter, Route, Switch, Redirect } from 'react-router-dom'
 import VolunteerLanding from './Volunteer/Landing';
 import ActionRedirect from './Common/ActionRedirect';
+import AppLayout from './Common/AppLayout';
 import RequestManager from './Requests';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import { loadConfig, getAuthUser } from './../redux/actions.js';
+import DashboardAdmin from './Dashboard/DashboardAdmin';
+import Settings from './Volunteer/Settings';
+import LocalBodyBrowser from './Volunteer/LocalBodyBrowser';
+import AppMessage from './Common/AppMessage';
 
 class App extends React.Component {
     componentDidMount() {
@@ -12,25 +17,43 @@ class App extends React.Component {
         this.props.loadConfig();
     }
     render() {
+        const {authUser} = this.props;
         return <Switch>
-            <Route path="/requests/:param?" component={RequestManager} />
+            <Route path="/dashboard" >
+                <AppLayout>
+                    <DashboardAdmin />
+                </AppLayout>
+            </Route>
+            <Route path="/rq/:type/:status?/:page?"  >
+                <AppLayout>
+                    <RequestManager />
+                </AppLayout>
+            </Route>
+            <Route path="/settings">
+                <AppLayout>
+                    <Settings />
+                </AppLayout>
+            </Route>
             <Route path="/logout">
                 <ActionRedirect action={() => localStorage.removeItem('accessToken')} href="/" />
             </Route>
-            <Route path="/:param1?/:param2?/:param3?/:param4?/:param5?"
-                component={VolunteerLanding}
-            />
+            <Route path="/lb/:parentId?/:type?/:status?/:page?">
+                <AppLayout><LocalBodyBrowser /></AppLayout>
+            </Route>
+            <Route path="*"> 
+                <VolunteerLanding />
+            </Route>
         </Switch>
     }
 }
 
 function mapStateToProps(state) {
     return {
-        authUser: state.authUser, 
+        authUser: state.authUser,
     }
 }
 
-export default withRouter(connect(mapStateToProps, { 
+export default withRouter(connect(mapStateToProps, {
     getAuthUser,
     loadConfig
 })(App));
